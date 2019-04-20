@@ -6,6 +6,7 @@ import { paginate } from "../utils/paginate";
 import ListGroup from "./common/listgroup";
 import MovieTable from "./movieTable";
 import _ from "lodash";
+
 class Movies extends Component {
   state = {
     movies: [],
@@ -16,10 +17,11 @@ class Movies extends Component {
     genres: [],
     sortColumn: { path: "title", order: "asc" }
   };
-  componentDidMount() {
+  componentDidMount = () => {
     const genres = [{ _id: "", name: "All Genres" }, ...getGenres()];
-    this.setState({ movies: getMovies(), genres });
-  }
+    const movies = getMovies();
+    this.setState({ movies, genres });
+  };
   handleDeleteMovie = id => {
     // could be simplify if we don't need to delete the movie from db, just filter by id directly
     const movieToDelete = deleteMovie(id);
@@ -48,11 +50,10 @@ class Movies extends Component {
   handleSort = sortColumn => {
     this.setState({ sortColumn });
   };
-  render() {
+  getPageDate() {
     const {
       movies: allMovies,
       pagination,
-      genres,
       selectedGenre,
       sortColumn
     } = this.state;
@@ -73,24 +74,26 @@ class Movies extends Component {
       pagination.currentPage,
       pagination.pageSize
     );
-
+    return { totalCount: moviesCount, data: movies };
+  }
+  render() {
+    const { pagination, genres, selectedGenre, sortColumn } = this.state;
+    const { totalCount, data } = this.getPageDate();
     return (
       <main className="container">
-        {moviesCount === 0 ? (
+        {totalCount === 0 ? (
           <p>There are no movies in the database.</p>
         ) : (
           <React.Fragment>
-            <p>Showing {moviesCount} movies in the database</p>
+            <p>Showing {totalCount} movies in the database</p>
             <div className="row">
               <ListGroup
-                className="col-md-3"
                 genres={genres}
                 selectedGenre={selectedGenre}
                 onGenreSelect={this.handleOnGenreSelect}
               />
               <MovieTable
-                className="col"
-                movies={movies}
+                movies={data}
                 onLike={this.handleLike}
                 onDelete={this.handleDeleteMovie}
                 onSort={this.handleSort}
@@ -98,7 +101,7 @@ class Movies extends Component {
               />
             </div>
             <Pagination
-              itemsCount={moviesCount}
+              itemsCount={totalCount}
               pageSize={pagination.pageSize}
               currentPage={pagination.currentPage}
               handlePagination={this.handlePagination}
