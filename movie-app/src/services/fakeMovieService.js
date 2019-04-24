@@ -1,4 +1,5 @@
 import * as genresAPI from "./fakeGenreService";
+import uuid from "uuid";
 
 const movies = [
   {
@@ -81,18 +82,27 @@ export function getMovies() {
 }
 
 export function getMovie(id) {
+  console.log(movies);
   return movies.find(m => m._id === id);
 }
 
+function movieTitleInDb(title) {
+  let movieInDb = movies.filter(m => m.title === title).length;
+  return movieInDb > 0;
+}
 export function saveMovie(movie) {
   let movieInDb = movies.find(m => m._id === movie._id) || {};
-  movieInDb.name = movie.name;
+  movieInDb.title = movie.title;
   movieInDb.genre = genresAPI.genres.find(g => g._id === movie.genreId);
   movieInDb.numberInStock = movie.numberInStock;
   movieInDb.dailyRentalRate = movie.dailyRentalRate;
+  movieInDb.liked = movieInDb.liked || false;
 
   if (!movieInDb._id) {
-    movieInDb._id = Date.now();
+    if (movieTitleInDb(movie.title)) {
+      return movie.title + " is already in the database";
+    }
+    movieInDb._id = `${uuid.v1()}`;
     movies.push(movieInDb);
   }
 

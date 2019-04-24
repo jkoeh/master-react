@@ -3,7 +3,7 @@ import TableHeader from "./tableHeader";
 import TableBody from "./tableBody";
 const Table = ({ columns, data, onSort, sortColumn }) => {
   return (
-    <table className="col offset-sm-1 table">
+    <table className="col table">
       <TableHeader
         tableHeaders={columns}
         onSort={onSort}

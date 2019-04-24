@@ -11,12 +11,12 @@ const ListGroup = ({
 }) => {
   return (
     <ul className="list-group">
-      {genres.map(genre => (
+      {genres.map((genre, ind) => (
         <li
           key={genre[valueProperty]}
           onClick={() => onGenreSelect(genre)}
           className={
-            selectedGenre === genre
+            (!selectedGenre && ind === 0) || selectedGenre === genre
               ? "list-group-item active"
               : "list-group-item"
           }

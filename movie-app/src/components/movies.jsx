@@ -6,6 +6,7 @@ import { paginate } from "../utils/paginate";
 import ListGroup from "./common/listgroup";
 import MovieTable from "./movieTable";
 import _ from "lodash";
+import { NavLink } from "react-router-dom";
 
 class Movies extends Component {
   state = {
@@ -78,6 +79,7 @@ class Movies extends Component {
   }
   render() {
     const { pagination, genres, selectedGenre, sortColumn } = this.state;
+
     const { totalCount, data } = this.getPageDate();
     return (
       <main className="container">
@@ -85,20 +87,29 @@ class Movies extends Component {
           <p>There are no movies in the database.</p>
         ) : (
           <React.Fragment>
-            <p>Showing {totalCount} movies in the database</p>
             <div className="row">
-              <ListGroup
-                genres={genres}
-                selectedGenre={selectedGenre}
-                onGenreSelect={this.handleOnGenreSelect}
-              />
-              <MovieTable
-                movies={data}
-                onLike={this.handleLike}
-                onDelete={this.handleDeleteMovie}
-                onSort={this.handleSort}
-                sortColumn={sortColumn}
-              />
+              <div className="col-sm-2">
+                <ListGroup
+                  genres={genres}
+                  selectedGenre={selectedGenre}
+                  onGenreSelect={this.handleOnGenreSelect}
+                />
+              </div>
+              <div className="container col-sm-10 ">
+                <NavLink className="btn btn-primary" to="/movie/new">
+                  New Movie
+                </NavLink>
+                <div style={{ margin: "20px 0" }}>
+                  Showing {totalCount} movies in the database
+                </div>
+                <MovieTable
+                  movies={data}
+                  onLike={this.handleLike}
+                  onDelete={this.handleDeleteMovie}
+                  onSort={this.handleSort}
+                  sortColumn={sortColumn}
+                />
+              </div>
             </div>
             <Pagination
               itemsCount={totalCount}
