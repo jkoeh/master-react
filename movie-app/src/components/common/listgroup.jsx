@@ -16,7 +16,7 @@ const ListGroup = ({
           key={genre[valueProperty]}
           onClick={() => onGenreSelect(genre)}
           className={
-            (!selectedGenre && ind === 0) || selectedGenre === genre
+            selectedGenre === genre
               ? "list-group-item active"
               : "list-group-item"
           }

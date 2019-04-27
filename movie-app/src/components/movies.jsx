@@ -7,6 +7,7 @@ import ListGroup from "./common/listgroup";
 import MovieTable from "./movieTable";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
+import SearchBar from "./common/searchBar";
 
 class Movies extends Component {
   state = {
@@ -15,6 +16,7 @@ class Movies extends Component {
       currentPage: 1,
       pageSize: 4
     },
+    searchText: "",
     genres: [],
     sortColumn: { path: "title", order: "asc" }
   };
@@ -44,6 +46,7 @@ class Movies extends Component {
   };
   handleOnGenreSelect = genre => {
     this.setState({
+      searchText: "",
       selectedGenre: genre,
       pagination: { ...this.state.pagination, currentPage: 1 }
     });
@@ -51,14 +54,25 @@ class Movies extends Component {
   handleSort = sortColumn => {
     this.setState({ sortColumn });
   };
+  handleSearch = query => {
+    this.setState({
+      searchText: query,
+      selectedGenre: null,
+      pagination: { ...this.state.pagination, currentPage: 1 }
+    });
+  };
   getPageDate() {
     const {
       movies: allMovies,
       pagination,
       selectedGenre,
-      sortColumn
+      sortColumn,
+      searchText
     } = this.state;
-    const movieByGenre = allMovies.filter(
+    const movieBySearch = allMovies.filter(x =>
+      x.title.toLocaleLowerCase().includes(searchText)
+    );
+    const movieByGenre = movieBySearch.filter(
       x =>
         selectedGenre == null ||
         selectedGenre._id === "" ||
@@ -78,47 +92,54 @@ class Movies extends Component {
     return { totalCount: moviesCount, data: movies };
   }
   render() {
-    const { pagination, genres, selectedGenre, sortColumn } = this.state;
+    const {
+      pagination,
+      genres,
+      selectedGenre,
+      sortColumn,
+      searchText
+    } = this.state;
 
     const { totalCount, data } = this.getPageDate();
     return (
       <main className="container">
-        {totalCount === 0 ? (
-          <p>There are no movies in the database.</p>
-        ) : (
-          <React.Fragment>
-            <div className="row">
-              <div className="col-sm-2">
-                <ListGroup
-                  genres={genres}
-                  selectedGenre={selectedGenre}
-                  onGenreSelect={this.handleOnGenreSelect}
-                />
-              </div>
-              <div className="container col-sm-10 ">
-                <NavLink className="btn btn-primary" to="/movie/new">
-                  New Movie
-                </NavLink>
-                <div style={{ margin: "20px 0" }}>
-                  Showing {totalCount} movies in the database
-                </div>
-                <MovieTable
-                  movies={data}
-                  onLike={this.handleLike}
-                  onDelete={this.handleDeleteMovie}
-                  onSort={this.handleSort}
-                  sortColumn={sortColumn}
-                />
-              </div>
+        <React.Fragment>
+          <div className="row">
+            <div className="col-sm-2">
+              <ListGroup
+                genres={genres}
+                selectedGenre={selectedGenre}
+                onGenreSelect={this.handleOnGenreSelect}
+              />
             </div>
-            <Pagination
-              itemsCount={totalCount}
-              pageSize={pagination.pageSize}
-              currentPage={pagination.currentPage}
-              handlePagination={this.handlePagination}
-            />
-          </React.Fragment>
-        )}
+            <div className="container col-sm-10 ">
+              <NavLink className="btn btn-primary" to="/movie/new">
+                New Movie
+              </NavLink>
+              <div style={{ margin: "20px 0" }}>
+                {totalCount === 0 ? (
+                  <p>There are no movies in the database.</p>
+                ) : (
+                  <p>Showing {totalCount} movies in the database</p>
+                )}
+              </div>
+              <SearchBar searchText={searchText} onChange={this.handleSearch} />
+              <MovieTable
+                movies={data}
+                onLike={this.handleLike}
+                onDelete={this.handleDeleteMovie}
+                onSort={this.handleSort}
+                sortColumn={sortColumn}
+              />
+            </div>
+          </div>
+          <Pagination
+            itemsCount={totalCount}
+            pageSize={pagination.pageSize}
+            currentPage={pagination.currentPage}
+            handlePagination={this.handlePagination}
+          />
+        </React.Fragment>
       </main>
     );
   }
