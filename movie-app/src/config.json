@@ -1,0 +1,4 @@
+{
+  "apiEndPoint": "http://localhost:3900/api",
+  "dsn": "https://fa84d2c6cac64c2b846bd3bdfa070399@sentry.io/1450135"
+}

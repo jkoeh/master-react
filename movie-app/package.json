@@ -7,6 +7,8 @@
     "@fortawesome/free-regular-svg-icons": "^5.8.1",
     "@fortawesome/free-solid-svg-icons": "^5.8.1",
     "@fortawesome/react-fontawesome": "^0.1.4",
+    "@sentry/browser": "^5.1.2",
+    "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
     "font-awesome": "^4.7.0",
     "joi-browser": "^13.4.0",
@@ -16,6 +18,7 @@
     "react-dom": "^16.8.4",
     "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
+    "react-toastify": "^5.1.0",
     "uuid": "^3.3.2"
   },
   "scripts": {

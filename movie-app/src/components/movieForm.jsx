@@ -1,9 +1,10 @@
 import React from "react";
 
 import Form from "./common/form";
-import { getGenres } from "../services/fakeGenreService";
+import { getGenres } from "../services/genreService";
 import Joi from "joi-browser";
 import { saveMovie, getMovies } from "../services/fakeMovieService";
+import { genres } from "../services/fakeGenreService";
 
 class MovieForm extends Form {
   state = {
@@ -35,8 +36,8 @@ class MovieForm extends Form {
       this.setState({ data: { ...data, genreId: data.genre._id } });
     }
   }
-  componentDidMount() {
-    const genres = getGenres();
+  async componentDidMount() {
+    let { data: genres } = await getGenres();
     genres.unshift({ _id: "", name: "" });
     this.setState({ genres });
   }
