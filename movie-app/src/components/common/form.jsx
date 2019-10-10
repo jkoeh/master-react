@@ -23,14 +23,14 @@ class Form extends Component {
     }
     return errors;
   };
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
     const errors = this.validateForm();
     this.setState({ errors: errors || {} });
     if (errors) return;
 
     //call server
-    this.doSubmit();
+    await this.doSubmit();
   };
   handleInputChange = ({ currentTarget: input }) => {
     const errors = { ...this.state.errors };

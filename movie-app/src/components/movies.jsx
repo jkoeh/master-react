@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { getMovies, deleteMovie } from "../services/fakeMovieService";
+import { getMovies, deleteMovie } from "../services/movieService";
 import { getGenres } from "../services/genreService";
 import Pagination from "./common/pagination";
 import { paginate } from "../utils/paginate";
@@ -8,6 +8,7 @@ import MovieTable from "./movieTable";
 import _ from "lodash";
 import { NavLink } from "react-router-dom";
 import SearchBar from "./common/searchBar";
+import { toast } from "react-toastify";
 
 class Movies extends Component {
   state = {
@@ -22,18 +23,22 @@ class Movies extends Component {
   };
   async componentDidMount() {
     const { data } = await getGenres();
-
     const genres = [{ _id: "", name: "All Genres" }, ...data];
-
-    const movies = getMovies();
+    const { data: movies } = await getMovies();
     this.setState({ movies, genres });
   }
-  handleDeleteMovie = id => {
-    // could be simplify if we don't need to delete the movie from db, just filter by id directly
-    const movieToDelete = deleteMovie(id);
+  handleDeleteMovie = async id => {
+    const originalMovies = this.state.movies;
     this.setState({
-      movies: this.state.movies.filter(x => x._id !== movieToDelete._id)
+      movies: this.state.movies.filter(x => x._id !== id)
     });
+    try {
+      await deleteMovie(id);
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404)
+        toast.error("This movie has already been deleted");
+      this.setState({ movies: originalMovies });
+    }
   };
   handlePagination = page => {
     this.setState({
@@ -104,6 +109,7 @@ class Movies extends Component {
     } = this.state;
 
     const { totalCount, data } = this.getPageDate();
+    const { user } = this.props;
     return (
       <main className="container">
         <React.Fragment>
@@ -116,9 +122,11 @@ class Movies extends Component {
               />
             </div>
             <div className="container col-sm-10 ">
-              <NavLink className="btn btn-primary" to="/movie/new">
-                New Movie
-              </NavLink>
+              {user && (
+                <NavLink className="btn btn-primary" to="/movies/new">
+                  New Movie
+                </NavLink>
+              )}
               <div style={{ margin: "20px 0" }}>
                 {totalCount === 0 ? (
                   <p>There are no movies in the database.</p>

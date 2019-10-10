@@ -3,8 +3,7 @@ import React from "react";
 import Form from "./common/form";
 import { getGenres } from "../services/genreService";
 import Joi from "joi-browser";
-import { saveMovie, getMovies } from "../services/fakeMovieService";
-import { genres } from "../services/fakeGenreService";
+import { getMovie, saveMovie } from "../services/movieService";
 
 class MovieForm extends Form {
   state = {
@@ -30,21 +29,32 @@ class MovieForm extends Form {
       .min(0)
       .max(10)
   };
-  componentWillMount() {
-    const { data } = this.props;
-    if (data) {
-      this.setState({ data: { ...data, genreId: data.genre._id } });
-    }
-  }
-  async componentDidMount() {
+  async populateGenres() {
     let { data: genres } = await getGenres();
     genres.unshift({ _id: "", name: "" });
     this.setState({ genres });
   }
-  doSubmit() {
-    const resp = saveMovie(this.state.data);
-    if (typeof resp === "string") {
-      const errors = { title: resp };
+  async populateMovies() {
+    try {
+      const movieId = this.props.match.params.id;
+      if (movieId === "new") return;
+      const { data } = await getMovie(movieId);
+      data.genreId = data.genre._id;
+      delete data.genre;
+      this.setState({ data });
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404)
+        this.props.history.replace("/not-found");
+    }
+  }
+  async componentDidMount() {
+    await this.populateGenres();
+    await this.populateMovies();
+  }
+  async doSubmit() {
+    const data = await saveMovie(this.state.data);
+    if (typeof data === "string") {
+      const errors = { title: data };
       this.setState({ errors });
     } else {
       this.props.history.push("/");
